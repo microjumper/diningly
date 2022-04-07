@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "diningly": {
+      "hosting": {
+        "app": [
+          "diningly"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "diningly"
+  }
+}

@@ -1,0 +1,34 @@
+<ion-card>
+  <img [src]="restaurant.image" alt="">
+
+  <ion-card-header>
+    <ion-card-subtitle>{{restaurant.city}}</ion-card-subtitle>
+    <ion-card-title>{{restaurant.name}}</ion-card-title>
+  </ion-card-header>
+
+  <ion-card-content>
+    <p>{{restaurant.description}}</p>
+
+    <ion-item class="ion-no-padding">
+      <ion-label >Orario</ion-label>
+      <ion-select interface="popover" (ionChange)="checkAvailability($event.detail.value)">
+        <ion-select-option value="early">19:30</ion-select-option>
+        <ion-select-option value="ordinary">21:00</ion-select-option>
+        <ion-select-option value="late">22:30</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <ion-item class="ion-no-padding">
+      <ion-label >Persone</ion-label>
+      <ion-select interface="popover">
+        <ion-select-option [value]="i+1" *ngFor="let people of [].constructor(availability); let i = index">{{i+1}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <div class="card-actions">
+      <ion-button color="tertiary" style="margin-right: 4px">PRENOTA</ion-button>
+      <ion-button color="danger" style="margin-left: 4px">ANNULLA</ion-button>
+    </div>
+  </ion-card-content>
+</ion-card>
+
