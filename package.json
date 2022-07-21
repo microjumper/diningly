@@ -4,7 +4,7 @@
   "author": "Salvatore Sammarco",
   "homepage": "https://diningly.web.app/",
   "scripts": {
-    "ionic": "ionic serve",
+    "ionic": "ionic serve --browser firefox",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
