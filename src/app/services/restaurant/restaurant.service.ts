@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { Restaurant } from '../../models/restaurant.model';
-import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'

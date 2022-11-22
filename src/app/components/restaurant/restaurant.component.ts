@@ -1,31 +1,54 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { Restaurant, TimeSlot } from '../../models/restaurant.model';
-import { ReservationService } from '../../services/reservation/reservation.service';
+import { Subscription } from 'rxjs';
+
+import { Restaurant, Timeslot } from '../../models/restaurant.model';
 
 @Component({
   selector: 'app-restaurant',
   templateUrl: './restaurant.component.html',
   styleUrls: ['./restaurant.component.scss'],
 })
-export class RestaurantComponent implements OnInit {
+export class RestaurantComponent implements OnDestroy {
   @Input() restaurant: Restaurant;
 
-  availability: number;
+  timeslot = Timeslot;
 
-  constructor(private reservationService: ReservationService) {
-    this.availability = 0;
+  reservationForm: FormGroup;
+
+  private subscription: Subscription;
+
+  constructor() {
+    this.reservationForm = new FormGroup({
+      timeslotControl: new FormControl('', Validators.required),
+      peopleControl: new FormControl('')
+    });
+
+    this.subscription = this.reservationForm.controls.timeslotControl.valueChanges.subscribe(
+      value => {
+        const availability = this.restaurant.availability[value];
+
+        const peopleControl = this.reservationForm.controls.peopleControl;
+        peopleControl.setValidators([Validators.required, Validators.min(1), Validators.max(availability)]);
+        peopleControl.enable();
+      }
+    );
+
+    this.reservationForm.controls.peopleControl.disable();
   }
 
-  ngOnInit() {}
+  onSubmit(): void {
+    const reservation = {
+      user: 'test',
+      timeslot: this.reservationForm.value.timeslotControl,
+      people: this.reservationForm.value.peopleControl
+    };
 
-  checkAvailability(timeSlot: TimeSlot): any {
-    console.log(timeSlot);
-    this.reservationService.getReservation(this.restaurant.reservations).subscribe(
-      reservations => {
-        console.log(reservations);
-        console.log(reservations.availability[timeSlot]);
-        this.availability = reservations.availability[timeSlot];
-      });
+    console.log(reservation);
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }
