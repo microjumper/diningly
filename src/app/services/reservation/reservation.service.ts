@@ -5,7 +5,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 
-import { Reservation, Restaurant, Timeslot } from '../../models/restaurant.model';
+import { Reservation, Restaurant } from '../../models/restaurant.model';
 import { RestaurantService } from '../restaurant/restaurant.service';
 
 @Injectable({

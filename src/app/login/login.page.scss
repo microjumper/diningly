@@ -1,0 +1,12 @@
+.container {
+  height: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+  ion-card {
+    max-width: 480px;
+  }
+}
