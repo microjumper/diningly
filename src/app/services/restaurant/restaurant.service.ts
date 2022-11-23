@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
 
 import { Restaurant } from '../../models/restaurant.model';
 
@@ -20,8 +19,10 @@ export class RestaurantService {
   }
 
   getRestaurants(): Observable<Restaurant[]> {
-    return this.restaurants.pipe(
-      tap(restaurants => console.log(restaurants))
-    );
+    return this.restaurants;
+  }
+
+  updateRestaurant(restaurant: Restaurant): Promise<void> {
+    return this.restaurantsCollection.doc(restaurant.id).update(restaurant);
   }
 }

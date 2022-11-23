@@ -21,7 +21,7 @@
 
       <ion-item class="ion-no-padding">
         <ion-label>Persone&nbsp;/&nbsp;Disponibilit&agrave;</ion-label>
-        <ion-input type="number" formControlName="peopleControl" class="ion-text-end"></ion-input>
+        <ion-input type="number" min="1" formControlName="peopleControl" class="ion-text-end"></ion-input>
         <ion-label>&nbsp;/&nbsp;{{restaurant.availability[timeslotSelect.value]}}</ion-label>
       </ion-item>
 

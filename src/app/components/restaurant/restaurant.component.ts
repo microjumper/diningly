@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
 import { Restaurant, Timeslot } from '../../models/restaurant.model';
+import { ReservationService } from '../../services/reservation/reservation.service';
 
 @Component({
   selector: 'app-restaurant',
@@ -19,7 +20,7 @@ export class RestaurantComponent implements OnDestroy {
 
   private subscription: Subscription;
 
-  constructor() {
+  constructor(private reservationService: ReservationService) {
     this.reservationForm = new FormGroup({
       timeslotControl: new FormControl('', Validators.required),
       peopleControl: new FormControl('')
@@ -28,7 +29,6 @@ export class RestaurantComponent implements OnDestroy {
     this.subscription = this.reservationForm.controls.timeslotControl.valueChanges.subscribe(
       value => {
         const availability = this.restaurant.availability[value];
-
         const peopleControl = this.reservationForm.controls.peopleControl;
         peopleControl.setValidators([Validators.required, Validators.min(1), Validators.max(availability)]);
         peopleControl.enable();
@@ -40,12 +40,13 @@ export class RestaurantComponent implements OnDestroy {
 
   onSubmit(): void {
     const reservation = {
-      user: 'test',
+      ref: this.restaurant.reservationsRef,
       timeslot: this.reservationForm.value.timeslotControl,
+      user: 'test',
       people: this.reservationForm.value.peopleControl
     };
 
-    console.log(reservation);
+    this.reservationService.book(this.restaurant, reservation).then();
   }
 
   ngOnDestroy() {
