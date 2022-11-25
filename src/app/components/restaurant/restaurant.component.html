@@ -30,7 +30,7 @@
       <div class="card-actions">
         <ion-button type="submit" color="tertiary" style="margin-right: 4px"
                     [disabled]="!reservationForm.valid">PRENOTA</ion-button>
-        <ion-button color="danger" style="margin-left: 4px">ANNULLA</ion-button>
+        <ion-button color="danger" style="margin-left: 4px" (click)="cancelReservation()">ANNULLA</ion-button>
       </div>
     </form>
   </ion-card-content>

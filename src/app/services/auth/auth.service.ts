@@ -5,22 +5,27 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 import firebase from 'firebase/compat/app';
 
-import { Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+
+import { User } from '../../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor(private auth: AngularFireAuth, private router: Router) { }
+  private userSubject = new BehaviorSubject<User>(null);
+
+  constructor(private auth: AngularFireAuth, private router: Router) {
+    this.auth.user.pipe(
+      map(firebaseUser => ({ name: firebaseUser.displayName, email: firebaseUser.email }))
+    ).subscribe(user => this.userSubject.next(user));
+  }
 
   signInWithGoogle(): void {
     this.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(user => {
-        console.log(user);
-        this.router.navigate(['']);
-      })
+      .then(() => this.router.navigate(['']))
       .catch(err => console.log(`Error during login: ${err}`));
   }
 
@@ -35,5 +40,9 @@ export class AuthService {
     return this.auth.authState.pipe(
       switchMap(authState => authState ? of(true) : of(false))
     );
+  }
+
+  getAuthenticatedUser(): User {
+    return this.userSubject.value;
   }
 }

@@ -12,18 +12,10 @@ export interface Restaurant {
   image: string;
   capacity: number;
   availability: Availability;
-  reservationsRef: string;
 }
 
 export type Availability = {
   early: number;
   ordinary: number;
   late: number;
-};
-
-export type Reservation = {
-  ref: string;
-  user: string;
-  timeslot: Timeslot;
-  people: number;
 };

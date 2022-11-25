@@ -4,7 +4,7 @@ import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/comp
 
 import { Observable } from 'rxjs';
 
-import { Restaurant } from '../../models/restaurant.model';
+import { Restaurant, Timeslot } from '../../models/restaurant.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,7 @@ export class RestaurantService {
     return this.restaurants;
   }
 
-  updateRestaurant(restaurant: Restaurant): Promise<void> {
-    return this.restaurantsCollection.doc(restaurant.id).update(restaurant);
+  updateAvailability(restaurantId: string, timeslot: Timeslot, newAvailability: number) {
+    return this.restaurantsCollection.doc(restaurantId).update({[`availability.${timeslot}`]: newAvailability});
   }
 }

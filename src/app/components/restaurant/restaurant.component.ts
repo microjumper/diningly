@@ -1,10 +1,13 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 import { Restaurant, Timeslot } from '../../models/restaurant.model';
+
 import { ReservationService } from '../../services/reservation/reservation.service';
+import { AuthService } from '../../services/auth/auth.service';
+import { RestaurantService } from '../../services/restaurant/restaurant.service';
 
 @Component({
   selector: 'app-restaurant',
@@ -20,7 +23,7 @@ export class RestaurantComponent implements OnDestroy {
 
   private subscription: Subscription;
 
-  constructor(private reservationService: ReservationService) {
+  constructor(private reservationService: ReservationService, private restaurantService: RestaurantService, private authService: AuthService) {
     this.reservationForm = new FormGroup({
       timeslotControl: new FormControl('', Validators.required),
       peopleControl: new FormControl('')
@@ -40,13 +43,23 @@ export class RestaurantComponent implements OnDestroy {
 
   onSubmit(): void {
     const reservation = {
-      ref: this.restaurant.reservationsRef,
+      restaurantRef: this.restaurant.id,
+      user: this.authService.getAuthenticatedUser(),
       timeslot: this.reservationForm.value.timeslotControl,
-      user: 'test',
       people: this.reservationForm.value.peopleControl
     };
 
-    this.reservationService.book(this.restaurant, reservation).then();
+    if(this.restaurant.availability[reservation.timeslot] >= reservation.people) {
+      this.reservationService.book(reservation).then();
+      const newAvailability = this.restaurant.availability[reservation.timeslot] - reservation.people;
+      this.restaurantService.updateAvailability(this.restaurant.id, reservation.timeslot, newAvailability).then();
+    } else {
+      console.log('Numero di posti disponibili insufficiente a soddisfare la richiesta');
+    }
+  }
+
+  cancelReservation(): void {
+
   }
 
   ngOnDestroy() {
