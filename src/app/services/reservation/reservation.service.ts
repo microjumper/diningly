@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
+import { Observable } from 'rxjs';
+
 import { Reservation } from '../../models/reservation.model';
 
 @Injectable({
@@ -20,5 +22,10 @@ export class ReservationService {
 
   cancelReservation(restaurantId: string, reservationId: string): Promise<void> {
     return this.reservationsCollection.doc(restaurantId).collection('reservations').doc(reservationId).delete();
+  }
+
+  getReservationsByUser(email: string, restaurantId: string): Observable<any[]> {
+    return this.reservationsCollection.doc(restaurantId).collection('reservations',
+      ref => ref.where('user.email', '==', email)).valueChanges({idField: 'id'});
   }
 }

@@ -5,7 +5,7 @@ export enum Timeslot {
 }
 
 export interface Restaurant {
-  id: string;
+  id?: string;
   name: string;
   city: string;
   description: string;

@@ -1,42 +1,46 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { forkJoin, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 import { Restaurant, Timeslot } from '../../models/restaurant.model';
 
 import { ReservationService } from '../../services/reservation/reservation.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RestaurantService } from '../../services/restaurant/restaurant.service';
+import { Reservation } from '../../models/reservation.model';
 
 @Component({
   selector: 'app-restaurant',
   templateUrl: './restaurant.component.html',
   styleUrls: ['./restaurant.component.scss'],
 })
-export class RestaurantComponent implements OnDestroy {
+export class RestaurantComponent implements OnInit, OnDestroy {
   @Input() restaurant: Restaurant;
 
   timeslot = Timeslot;
 
   reservationForm: FormGroup;
 
-  private subscription: Subscription;
+  private subscriptions: Subscription[];
+  private reservations: Reservation[];
 
   constructor(private reservationService: ReservationService, private restaurantService: RestaurantService, private authService: AuthService) {
+    this.subscriptions = [];
+
     this.reservationForm = new FormGroup({
       timeslotControl: new FormControl('', Validators.required),
       peopleControl: new FormControl('')
     });
 
-    this.subscription = this.reservationForm.controls.timeslotControl.valueChanges.subscribe(
+    this.subscriptions.push(this.reservationForm.controls.timeslotControl.valueChanges.subscribe(
       value => {
         const availability = this.restaurant.availability[value];
         const peopleControl = this.reservationForm.controls.peopleControl;
         peopleControl.setValidators([Validators.required, Validators.min(1), Validators.max(availability)]);
         peopleControl.enable();
       }
-    );
+    ));
 
     this.reservationForm.controls.peopleControl.disable();
   }
@@ -59,10 +63,24 @@ export class RestaurantComponent implements OnDestroy {
   }
 
   cancelReservation(): void {
+    const index = this.reservations.findIndex(r => r.timeslot === this.reservationForm.value.timeslotControl);
 
+    if(index >= 0) {
+      const newAvailability = this.restaurant.availability[this.reservations[index].timeslot] + this.reservations[index].people;
+      this.restaurantService.updateAvailability(this.restaurant.id, this.reservations[index].timeslot, newAvailability).then();
+      this.reservationService.cancelReservation(this.restaurant.id, this.reservations[index].id)
+        .then()
+        .catch();
+    } else {
+      console.log('Nessuna prenotazione da annullare');
+    }
   }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+  ngOnInit(): void {
+    this.subscriptions.push(this.reservationService.getReservationsByUser(this.authService.getAuthenticatedUser().email, this.restaurant.id).subscribe(reservations => this.reservations = reservations));
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 }
