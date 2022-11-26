@@ -25,7 +25,7 @@ export class AuthService {
 
   signInWithGoogle(): void {
     this.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
-      .then(() => this.router.navigate(['']))
+      .then(() => this.router.navigate([''],{ replaceUrl: true }))
       .catch(err => console.log(`Error during login: ${err}`));
   }
 
@@ -33,7 +33,7 @@ export class AuthService {
     this.auth.signOut()
       .then()
       .catch()
-      .finally(() => this.router.navigate(['login']));
+      .finally(() => this.router.navigate(['login', { replaceUrl: true }]));
   }
 
   isAuthenticated(): Observable<boolean> {
