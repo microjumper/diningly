@@ -3,12 +3,11 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 import { Subscription } from 'rxjs';
 
-import { Restaurant, Timeslot } from '../../models/restaurant.model';
-
 import { ReservationService } from '../../services/reservation/reservation.service';
-import { AuthService } from '../../services/auth/auth.service';
 import { RestaurantService } from '../../services/restaurant/restaurant.service';
-import { Reservation } from '../../models/reservation.model';
+
+import { Restaurant, Timeslot } from '../../models/restaurant.model';
+import { Reservation, UserReservation } from '../../models/reservation.model';
 
 @Component({
   selector: 'app-restaurant',
@@ -25,7 +24,7 @@ export class RestaurantComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[];
   private reservations: Reservation[];
 
-  constructor(private reservationService: ReservationService, private restaurantService: RestaurantService, private authService: AuthService) {
+  constructor(private reservationService: ReservationService, private restaurantService: RestaurantService) {
     this.subscriptions = [];
 
     this.reservationForm = new FormGroup({
@@ -46,17 +45,13 @@ export class RestaurantComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    const reservation = {
-      restaurantRef: this.restaurant.id,
-      user: this.authService.getAuthenticatedUser(),
-      timeslot: this.reservationForm.value.timeslotControl,
-      people: this.reservationForm.value.peopleControl
-    };
+    const people = this.reservationForm.value.peopleControl;
+    const timeslot = this.reservationForm.value.timeslotControl;
 
-    if(this.restaurant.availability[reservation.timeslot] >= reservation.people) {
-      this.reservationService.book(reservation).then();
-      const newAvailability = this.restaurant.availability[reservation.timeslot] - reservation.people;
-      this.restaurantService.updateAvailability(this.restaurant.id, reservation.timeslot, newAvailability).then();
+    if(this.restaurant.availability[timeslot] >= people) {
+      this.reservationService.book(this.restaurant.id, people, timeslot).then();
+      const newAvailability = this.restaurant.availability[timeslot] - people;
+      this.restaurantService.updateAvailability(this.restaurant.id, timeslot, newAvailability).then();
     } else {
       console.log('Numero di posti disponibili insufficiente a soddisfare la richiesta');
     }
@@ -77,10 +72,24 @@ export class RestaurantComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscriptions.push(this.reservationService.getReservationsByUser(this.authService.getAuthenticatedUser().email, this.restaurant.id).subscribe(reservations => this.reservations = reservations));
+    this.subscriptions.push(this.reservationService.getReservationsByRestaurant(this.restaurant.id)
+      .subscribe(reservations => {
+        this.reservations = reservations;
+        this.reservations.forEach(r => this.reservationService.addToUserReservations(this.toUserReservation(r)));
+      }));
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  private toUserReservation(reservation: Reservation): UserReservation {
+    return {
+      restaurantId: this.restaurant.id,
+      restaurantName: this.restaurant.name,
+      reservationId: reservation.id,
+      people: reservation.people,
+      timeslot: reservation.timeslot
+    };
   }
 }

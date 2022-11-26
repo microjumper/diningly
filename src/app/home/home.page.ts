@@ -2,8 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 import { Subscription } from 'rxjs';
 
-import { Restaurant } from '../models/restaurant.model';
 import { RestaurantService } from '../services/restaurant/restaurant.service';
+
+import { Restaurant } from '../models/restaurant.model';
 
 @Component({
   selector: 'app-home',

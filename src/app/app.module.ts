@@ -11,9 +11,10 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 import { environment } from '../environments/environment';
+import { TimeslotPipe } from './pipes/timeslot.pipe';
 
 @NgModule({
-    declarations: [AppComponent],
+    declarations: [AppComponent, TimeslotPipe],
     imports: [
         BrowserModule,
         IonicModule.forRoot({ mode: 'md' }),
