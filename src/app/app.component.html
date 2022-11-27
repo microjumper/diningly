@@ -20,9 +20,9 @@
             <ion-item>
               <ion-label>{{reservation.timeslot | timeslot}}</ion-label>
               <ion-label>x&nbsp;{{reservation.people}}</ion-label>
-              <ion-button (click)="cancelReservation(reservation.restaurantRef, reservation.id,
+              <ion-button (click)="presentConfirmationAlert(reservation.restaurantRef, reservation.id,
               reservation.people, reservation.timeslot)"
-                fill="clear" color="danger">ANNULLA</ion-button>
+                fill="clear" color="danger">CANCELLA</ion-button>
             </ion-item>
           </div>
         </ion-list>

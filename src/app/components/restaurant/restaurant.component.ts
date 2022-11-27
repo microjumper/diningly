@@ -1,6 +1,8 @@
 import { Component, Input, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
+import { AlertController } from '@ionic/angular';
+
 import { Subscription } from 'rxjs';
 
 import { ReservationService } from '../../services/reservation/reservation.service';
@@ -22,7 +24,8 @@ export class RestaurantComponent implements OnDestroy {
 
   private subscription: Subscription;
 
-  constructor(private reservationService: ReservationService, private restaurantService: RestaurantService) {
+  constructor(private reservationService: ReservationService, private restaurantService: RestaurantService,
+              private alertController: AlertController) {
     this.reservationForm = new FormGroup({
       timeslotControl: new FormControl('', Validators.required),
       peopleControl: new FormControl('')
@@ -40,7 +43,30 @@ export class RestaurantComponent implements OnDestroy {
     this.reservationForm.controls.peopleControl.disable();
   }
 
-  onSubmit(): void {
+  async presentConfirmationAlert() {
+    const alert = await this.alertController.create({
+      header: 'Prenotazione',
+      message: 'Vuoi procedere con la prenotazione?',
+      buttons: [
+        {
+          text: 'ANNULLA',
+          role: 'cancel'
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: () => this.book(),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  private book(): void {
     const people = this.reservationForm.value.peopleControl;
     const timeslot = this.reservationForm.value.timeslotControl;
 
@@ -53,9 +79,5 @@ export class RestaurantComponent implements OnDestroy {
         this.restaurantService.updateAvailability(this.restaurant.id, timeslot, newAvailability)
           .then(() => console.log('%cavailability updated', 'color: green'));
       });
-  }
-
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
   }
 }

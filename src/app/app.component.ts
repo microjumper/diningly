@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { MenuController } from '@ionic/angular';
+import { AlertController, MenuController } from '@ionic/angular';
 
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -22,7 +22,7 @@ export class AppComponent {
   isAuthenticated: Observable<boolean>;
   reservations: Observable<Reservation[]>;
 
-  constructor(private menuController: MenuController, private authService: AuthService, private reservationService: ReservationService, private restaurantService: RestaurantService) {
+  constructor(private menuController: MenuController, private authService: AuthService, private reservationService: ReservationService, private restaurantService: RestaurantService, private alertController: AlertController) {
     this.isAuthenticated = this.authService.isAuthenticated();
     this.reservations = this.reservationService.getUserReservations();
   }
@@ -47,5 +47,24 @@ export class AppComponent {
           });
       }
     );
+  }
+
+  async presentConfirmationAlert(restaurantId: string, reservationId: string, people: number, timeslot: Timeslot) {
+    const alert = await this.alertController.create({
+      header: 'Cancellazione',
+      message: 'Vuoi cancellare la prenotazione?',
+      buttons: [
+        {
+          text: 'ANNULLA',
+          role: 'cancel'
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: () => this.cancelReservation(restaurantId, reservationId, people, timeslot),
+        },
+      ],
+    });
+    await alert.present();
   }
 }
