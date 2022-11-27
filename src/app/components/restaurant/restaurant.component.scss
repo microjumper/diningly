@@ -1,21 +1,4 @@
 ion-card {
-  .booked-icon {
-    position: absolute;
-    top: 40px;
-    right: 30px;
-
-    color: var(--ion-color-warning);
-
-    transform: scale(5, 8);
-
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-  }
-
-  .booked {
-    opacity: 1;
-  }
-
   img {
     width: 100%;
     height: 100%;

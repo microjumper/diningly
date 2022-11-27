@@ -18,7 +18,5 @@ export class TimeslotPipe implements PipeTransform {
       default:
         return 'unknow timeslot';
     }
-    return null;
   }
-
 }

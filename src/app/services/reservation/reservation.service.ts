@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, zip } from 'rxjs';
+import { map, switchMap, take } from 'rxjs/operators';
 
 import { AuthService } from '../auth/auth.service';
 
-import { Reservation, UserReservation } from '../../models/reservation.model';
+import { Reservation } from '../../models/reservation.model';
 import { Timeslot } from '../../models/restaurant.model';
 
 @Injectable({
@@ -14,40 +15,57 @@ import { Timeslot } from '../../models/restaurant.model';
 })
 export class ReservationService {
   private readonly reservationsCollection: AngularFirestoreCollection<any>;
-
-  private userReservations: UserReservation[] = [];
-  private userReservationSubject = new BehaviorSubject<UserReservation[]>(this.userReservations);
+  private readonly userReservations = new BehaviorSubject<Reservation[]>([]);
 
   constructor(private firestore: AngularFirestore, private authService: AuthService) {
     this.reservationsCollection = firestore.collection<any>('reservations');
+    this.refreshUserReservations();
   }
 
-  book(restaurantId: string, people: number, timeslot: Timeslot): Promise<any> {
+  book(restaurantRef: string, restaurantName: string, people: number, timeslot: Timeslot): Promise<any> {
     const reservation: Reservation = {
-      restaurantRef: restaurantId,
+      restaurantRef,
+      restaurantName,
       user: this.authService.getAuthenticatedUser(),
       people,
       timeslot
     };
-    return this.reservationsCollection.doc(reservation.restaurantRef).collection('reservations').add(reservation);
+    return this.reservationsCollection.doc(reservation.restaurantRef).collection('reservations').add(reservation)
+      .finally(() => this.refreshUserReservations());
   }
 
   cancelReservation(restaurantId: string, reservationId: string): Promise<void> {
-    return this.reservationsCollection.doc(restaurantId).collection('reservations').doc(reservationId).delete();
+    return this.reservationsCollection.doc(restaurantId).collection('reservations').doc(reservationId).delete().finally(() => this.refreshUserReservations());
   }
 
-  getReservationsByRestaurant(restaurantId: string): Observable<any[]> {
+  getUserReservationsByRestaurant(restaurantId: string): Observable<Reservation[]> {
+    return this.getUserReservations().pipe(
+      map(reservations => reservations.filter(r => r.restaurantRef === restaurantId))
+    );
+  }
+
+  getUserReservations(): Observable<Reservation[]> {
+    return this.userReservations.asObservable();
+  }
+
+  private fetchUserReservations(): Observable<Reservation[]> {
+    return this.reservationsCollection.valueChanges({idField: 'restaurantRef'}).pipe(
+      take(1),
+      map(refs => refs.map(r => this.fetchReservationsByRestaurant(r.restaurantRef).pipe(take(1)))),
+      switchMap(reservations => zip(...reservations)),
+      map(reservations => [].concat(...reservations))
+    );
+  }
+
+  private fetchReservationsByRestaurant(restaurantId: string): Observable<any[]> {
     const user = this.authService.getAuthenticatedUser();
     return this.reservationsCollection.doc(restaurantId).collection('reservations',
       ref => ref.where('user.email', '==', user.email)).valueChanges({idField: 'id'});
   }
 
-  addToUserReservations(userReservation: UserReservation) {
-    this.userReservations.push(userReservation);
-    this.userReservationSubject.next(this.userReservations);
-  }
-
-  getUserReservations(): Observable<UserReservation[]> {
-    return this.userReservationSubject;
+  private refreshUserReservations(): void {
+    this.fetchUserReservations().pipe(take(1)).subscribe(
+      reservations => this.userReservations.next(reservations)
+    );
   }
 }

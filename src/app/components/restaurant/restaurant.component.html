@@ -1,6 +1,4 @@
 <ion-card>
-  <ion-icon name="bookmark" class="booked-icon booked"></ion-icon>
-
   <img [src]="restaurant.image" alt="">
 
   <ion-card-header>
@@ -15,9 +13,9 @@
       <ion-item class="ion-no-padding">
         <ion-label>Orario</ion-label>
         <ion-select interface="popover" #timeslotSelect formControlName="timeslotControl">
-          <ion-select-option [value]=timeslot.early>19:30</ion-select-option>
-          <ion-select-option [value]=timeslot.ordinary>21:00</ion-select-option>
-          <ion-select-option [value]=timeslot.late>22:30</ion-select-option>
+          <ion-select-option [value]=timeslot.early>{{timeslot.early | timeslot}}</ion-select-option>
+          <ion-select-option [value]=timeslot.ordinary>{{timeslot.ordinary | timeslot}}</ion-select-option>
+          <ion-select-option [value]=timeslot.late>{{timeslot.late | timeslot}}</ion-select-option>
         </ion-select>
       </ion-item>
 
@@ -28,11 +26,8 @@
       </ion-item>
 
       <div class="card-actions">
-        <ion-button type="submit" color="tertiary" style="margin-right: 4px"
-                    [disabled]="!reservationForm.valid">PRENOTA</ion-button>
-        <ion-button color="danger" style="margin-left: 4px" (click)="cancelReservation()">ANNULLA</ion-button>
+        <ion-button type="submit" color="tertiary" style="margin-right: 4px" [disabled]="!reservationForm.valid">PRENOTA</ion-button>
       </div>
     </form>
   </ion-card-content>
 </ion-card>
-

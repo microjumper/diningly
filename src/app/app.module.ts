@@ -11,18 +11,19 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 import { environment } from '../environments/environment';
-import { TimeslotPipe } from './pipes/timeslot.pipe';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
-    declarations: [AppComponent, TimeslotPipe],
-    imports: [
-        BrowserModule,
-        IonicModule.forRoot({ mode: 'md' }),
-        AppRoutingModule,
-        AngularFireModule.initializeApp(environment.firebase),
-        AngularFirestoreModule
-    ],
-    providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
-    bootstrap: [AppComponent]
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot({mode: 'md'}),
+    AppRoutingModule,
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
+    SharedModule
+  ],
+  providers: [{provide: RouteReuseStrategy, useClass: IonicRouteStrategy}],
+  bootstrap: [AppComponent]
 })
 export class AppModule {}

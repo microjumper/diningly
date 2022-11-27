@@ -8,6 +8,7 @@ import { HomePageRoutingModule } from './home-routing.module';
 
 import { HomePage } from './home.page';
 import { RestaurantComponent } from '../components/restaurant/restaurant.component';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
     imports: [
@@ -15,7 +16,8 @@ import { RestaurantComponent } from '../components/restaurant/restaurant.compone
         FormsModule,
         IonicModule,
         HomePageRoutingModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        SharedModule
     ],
   declarations: [HomePage, RestaurantComponent]
 })

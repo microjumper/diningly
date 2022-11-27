@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/compat/firestore';
 
 import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 import { Restaurant, Timeslot } from '../../models/restaurant.model';
 
@@ -22,7 +23,14 @@ export class RestaurantService {
     return this.restaurants;
   }
 
-  updateAvailability(restaurantId: string, timeslot: Timeslot, newAvailability: number) {
+  updateAvailability(restaurantId: string, timeslot: Timeslot, newAvailability: number): Promise<void> {
     return this.restaurantsCollection.doc(restaurantId).update({[`availability.${timeslot}`]: newAvailability});
+  }
+
+  getAvailability(restaurantId: string, timeslot: Timeslot): Observable<number> {
+    return this.restaurantsCollection.doc(restaurantId).valueChanges().pipe(
+      take(1),
+      map(restaurant => restaurant.availability[timeslot])
+    );
   }
 }
