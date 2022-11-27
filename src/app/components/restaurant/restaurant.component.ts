@@ -10,6 +10,8 @@ import { RestaurantService } from '../../services/restaurant/restaurant.service'
 
 import { Restaurant, Timeslot } from '../../models/restaurant.model';
 
+import { TimeslotPipe } from '../../pipes/timeslot.pipe';
+
 @Component({
   selector: 'app-restaurant',
   templateUrl: './restaurant.component.html',
@@ -25,7 +27,7 @@ export class RestaurantComponent implements OnDestroy {
   private subscription: Subscription;
 
   constructor(private reservationService: ReservationService, private restaurantService: RestaurantService,
-              private alertController: AlertController) {
+              private alertController: AlertController, private timeslotPipe: TimeslotPipe) {
     this.reservationForm = new FormGroup({
       timeslotControl: new FormControl('', Validators.required),
       peopleControl: new FormControl('')
@@ -43,27 +45,39 @@ export class RestaurantComponent implements OnDestroy {
     this.reservationForm.controls.peopleControl.disable();
   }
 
-  async presentConfirmationAlert() {
-    const alert = await this.alertController.create({
-      header: 'Prenotazione',
-      message: 'Vuoi procedere con la prenotazione?',
-      buttons: [
-        {
-          text: 'ANNULLA',
-          role: 'cancel'
-        },
-        {
-          text: 'OK',
-          role: 'confirm',
-          handler: () => this.book(),
-        },
-      ],
-    });
-    await alert.present();
+  checkForReservation(): void {
+    this.reservationService.checkForReservation(this.restaurant.id, this.reservationForm.value.timeslotControl).subscribe(
+      async reservation => {
+        if (reservation) {
+          const time = this.timeslotPipe.transform(this.reservationForm.value.timeslotControl);
+          const alert = await this.alertController.create({
+            header: 'Attenzione',
+            subHeader: `Hai già una prenotazione per le ${time}`,
+            message: 'Annullare la precedente se desideri effettuarne una nuova',
+            buttons: [{ text: 'OK', role: 'cancel' }],
+          });
+          await alert.present();
+        } else {
+          await this.presentConfirmationAlert();
+        }
+      }
+    );
   }
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  private async presentConfirmationAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Prenotazione',
+      message: 'Vuoi procedere con la prenotazione?',
+      buttons: [
+        { text: 'ANNULLA', role: 'cancel' },
+        { text: 'OK', role: 'confirm', handler: () => this.book() },
+      ],
+    });
+    await alert.present();
   }
 
   private book(): void {

@@ -9,7 +9,7 @@
   <ion-card-content>
     <p>{{restaurant.description}}</p>
 
-    <form [formGroup]="reservationForm" (ngSubmit)="presentConfirmationAlert()">
+    <form [formGroup]="reservationForm" (ngSubmit)="checkForReservation()">
       <ion-item class="ion-no-padding">
         <ion-label>Orario</ion-label>
         <ion-select interface="popover" #timeslotSelect formControlName="timeslotControl">

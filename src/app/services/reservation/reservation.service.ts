@@ -48,6 +48,13 @@ export class ReservationService {
     return this.userReservations.asObservable();
   }
 
+  checkForReservation(restaurantId: string, timeslot: Timeslot): Observable<Reservation> {
+    return this.getUserReservationsByRestaurant(restaurantId).pipe(
+      take(1),
+      map(reservations => reservations.find(r => r.timeslot === timeslot))
+    );
+  }
+
   private fetchUserReservations(): Observable<Reservation[]> {
     return this.reservationsCollection.valueChanges({idField: 'restaurantRef'}).pipe(
       take(1),

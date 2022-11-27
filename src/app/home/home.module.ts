@@ -10,6 +10,8 @@ import { HomePage } from './home.page';
 import { RestaurantComponent } from '../components/restaurant/restaurant.component';
 import { SharedModule } from '../shared/shared.module';
 
+import { TimeslotPipe } from '../pipes/timeslot.pipe';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -19,6 +21,9 @@ import { SharedModule } from '../shared/shared.module';
         ReactiveFormsModule,
         SharedModule
     ],
+  providers: [
+    TimeslotPipe
+  ],
   declarations: [HomePage, RestaurantComponent]
 })
 export class HomePageModule {}
