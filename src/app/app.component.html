@@ -2,11 +2,13 @@
   <ion-split-pane contentId="main-content" [disabled]="(isAuthenticated | async) === false">
     <ion-menu contentId="main-content" type="overlay">
       <ion-content>
-        <ion-toolbar>
-          <ion-buttons slot="end">
-            <ion-button fill="clear" (click)="signOut()">Sign out</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="end">
+              <ion-button fill="clear" (click)="signOut()">Sign out</ion-button>
+            </ion-buttons>
+          </ion-toolbar>
+        </ion-header>
 
         <ion-list>
           <ion-list-header>
