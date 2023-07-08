@@ -19,7 +19,12 @@ export class ReservationService {
 
   constructor(private firestore: AngularFirestore, private authService: AuthService) {
     this.reservationsCollection = firestore.collection<any>('reservations');
-    this.refreshUserReservations();
+
+    this.authService.isAuthenticated().subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.refreshUserReservations();
+      }
+    });
   }
 
   book(restaurantRef: string, restaurantName: string, people: number, timeslot: Timeslot): Promise<any> {

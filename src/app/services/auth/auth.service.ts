@@ -6,7 +6,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import firebase from 'firebase/compat/app';
 
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 import { User } from '../../models/user.model';
 
@@ -18,9 +18,11 @@ export class AuthService {
   private userSubject = new BehaviorSubject<User>(null);
 
   constructor(private auth: AngularFireAuth, private router: Router) {
-    this.auth.user.pipe(
-      map(firebaseUser => ({ name: firebaseUser.displayName, email: firebaseUser.email }))
-    ).subscribe(user => this.userSubject.next(user));
+    this.auth.user.subscribe(user => {
+      if (user) {
+        this.userSubject.next({ name: user.displayName, email: user.email });
+      }
+    });
   }
 
   signInWithGoogle(): void {
@@ -32,7 +34,7 @@ export class AuthService {
   signOut(): void {
     this.auth.signOut()
       .then()
-      .catch()
+      .catch(err => console.log(`Error during logout: ${err}`))
       .finally(() => this.router.navigate(['login', { replaceUrl: true }]));
   }
 
